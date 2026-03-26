@@ -17,3 +17,16 @@ from flask_login import (
 )
 
 import bcrypt
+
+# This section is the prerequisite for the app ---------------------------------
+app = Flask(__name__)
+app.config["SECRET_KEY"] = ""
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///secure_future.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db = SQLAlchemy(app)
+
+login_manager = LoginManager(app)
+login_manager.login_view = "login"
+# End of Prerequisite Section ---------------------------------------------
+

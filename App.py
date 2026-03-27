@@ -54,3 +54,81 @@ class User(UserMixin, db.Model):
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 # End of Database Models Section ---------------------------------------------
+
+# This section is for the routes ---------------------------------
+@app.route("/")
+def index():
+    if current_user.is_authenticated:
+        return redirect(url_for("Dashboard"))
+    return redirect(url_for("LoginPage"))
+
+
+#This route will handle the user registration process. It will validate the input and create a new user in the database if the input is valid.
+@app.route("/SignUpPage", methods=["GET", "POST"])
+def SignUpPage():
+    if current_user.is_authenticated:
+        return redirect(url_for("Dashboard"))
+    if request.method == "POST":
+        username = request.form.get("username")
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        #basic validation to ensure all fields are filled out
+        if not username or not email or not password:
+            flash("Please fill out all fields.")
+            return render_template("SignUpPage.html")
+        
+        if len(password) < 8:
+            flash("Password must be at least 8 characters long.")
+            return render_template("SignUpPage.html")
+        
+        #check if the username or email already exists in the database
+        if User.query.filter_by(username=username).first():
+            flash("Username already exists. Please choose a different one.")
+            return render_template("SignUpPage.html")
+        
+        if User.query.filter_by(email=email).first():
+            flash("Email already exists. Please choose a different one.")
+            return render_template("SignUpPage.html")
+        
+        #if the input is valid, create a new user and add it to the database
+        user = User(username=username, email=email)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+
+        flash("Account created successfully! Please log in.")
+        return redirect(url_for("LoginPage"))
+#Thus is the end of the SignUpPage route ---------------------------------
+
+
+#This route will handle the user login process. It will validate the input and log the user in if the input is valid.
+@app.route("/LoginPage", methods=["GET", "POST"])
+def LoginPage():
+    if current_user.is_authenticated:
+        return redirect(url_for("Dashboard"))
+    
+    if request.method == "POST":
+        username = request.form.get("username","").strip()
+        password = request.form.get("password","")
+
+        user = User.query.filter_by(username=username).first()
+
+        #This provides a generic error message to prevent user enumeration attacks, where an attacker could determine if a username exists based on the error message.
+        if not user or not user.check_password(password):
+            flash("Invalid username or password. Please try again.")
+            return render_template("LoginPage.html")
+        
+        login_user(user)
+        flash("Logged in successfully!")
+        return redirect(url_for("Dashboard"))
+    return render_template("LoginPage.html")
+#Thus is the end of the LoginPage route ---------------------------------
+
+#This section is for running the app ---------------------------------
+if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
+        print("Database Ready:  seecurefuture.db")
+    app.run(debug=True)
+# End of App Running Section ---------------------------------------------

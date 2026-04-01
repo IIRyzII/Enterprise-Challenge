@@ -12,3 +12,10 @@
 <h1>Welcome, {{ username }}</h1>
 
 <a href="{{ url_for('Logout') }}">Logout</a>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+      <p>{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+{% endwith %}

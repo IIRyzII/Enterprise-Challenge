@@ -3,3 +3,12 @@
   <input type="password" name="password" placeholder="Password" required>
   <button type="submit">Login</button>
 </form>
+<form method="POST">
+  <input type="text" name="username" required>
+  <input type="email" name="email" required>
+  <input type="password" name="password" required>
+  <button type="submit">Sign Up</button>
+</form>
+<h1>Welcome, {{ username }}</h1>
+
+<a href="{{ url_for('Logout') }}">Logout</a>

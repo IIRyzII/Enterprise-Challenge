@@ -126,12 +126,12 @@ def LoginPage():
 #Thus is the end of the LoginPage route ---------------------------------
 
 #This will be the dashboard route, which will only be accessible to authenticated users. It will display a welcome message with the user's username as well as logging out functionality. The dashboard will also be the landing page after a successful login.
-app.route("/Dashboard")
+@app.route("/Dashboard")
 @login_required # this line ensures that only authenticated users can access the dashboard
 def Dashboard():
     return render_template("Dashboard.html", username=current_user.username)
 
-app.route("/Logout")
+@app.route("/Logout")
 @login_required
 def Logout():
     logout_user()

@@ -20,7 +20,7 @@ import bcrypt
 
 # This section is the prerequisite for the app ---------------------------------
 app = Flask(__name__)
-app.config["SECRET_KEY"] = ""
+app.config["SECRET_KEY"] = "DioGoDaLot"
 app.config["SQLALCHEMY_DATABASE_URL"] = "sqlite:///secure_future.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 

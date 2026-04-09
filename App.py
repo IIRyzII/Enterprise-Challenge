@@ -27,7 +27,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 login_manager = LoginManager(app)
-login_manager.login_view = "login"
+login_manager.login_view = "LoginPage"
 # End of Prerequisite Section ---------------------------------------------
 
 
@@ -104,8 +104,10 @@ def SignUpPage():
         db.session.commit()
 
         flash("Account created successfully! Please log in.")
-        return redirect(url_for("LoginPage"))
+        return render_template("SignUpPage.html")
+    return render_template("SignUpPage.html")
 #Thus is the end of the SignUpPage route ---------------------------------
+
 
 
 #This route will handle the user login process. It will validate the input and log the user in if the input is valid.
@@ -162,7 +164,7 @@ def admin_dashboard():
 def Logout():
     logout_user()
     flash("You have been logged out.")
-    return redirect(url_for("LoginPage"))
+    return render_template("SignUpPage.html")
 #This is the end of the dashboard route ---------------------------------
 
 
@@ -170,6 +172,6 @@ def Logout():
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-        print("Database Ready:  seecurefuture.db")
+        print("Database Ready:  securefuture.db")
     app.run(debug=True)
 # End of App Running Section ---------------------------------------------

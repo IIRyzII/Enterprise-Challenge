@@ -41,6 +41,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(20), nullable=False, default="employee")
 
     def set_password(self,plaintext):
         #This both hashes and salts the password before storing it in the database
@@ -72,6 +73,7 @@ def SignUpPage():
         username = request.form.get("username")
         email = request.form.get("email")
         password = request.form.get("password")
+        role = request.form.get("role")
 
         #basic validation to ensure all fields are filled out
         if not username or not email or not password:
@@ -80,6 +82,10 @@ def SignUpPage():
         
         if len(password) < 8:
             flash("Password must be at least 8 characters long.")
+            return render_template("SignUpPage.html")
+
+        if role not in ["employee", "manager", "admin"]:
+            flash("Please select a valid role.")
             return render_template("SignUpPage.html")
         
         #check if the username or email already exists in the database
@@ -92,7 +98,7 @@ def SignUpPage():
             return render_template("SignUpPage.html")
         
         #if the input is valid, create a new user and add it to the database
-        user = User(username=username, email=email)
+        user = User(username=username, email=email, role=role)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()

@@ -164,7 +164,7 @@ def admin_dashboard():
 def Logout():
     logout_user()
     flash("You have been logged out.")
-    return render_template("SignUpPage.html")
+    return render_template("LoginPage.html")
 #This is the end of the dashboard route ---------------------------------
 
 

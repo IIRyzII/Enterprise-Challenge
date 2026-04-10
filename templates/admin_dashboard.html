@@ -3,40 +3,143 @@
 {% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
-<nav class="navbar navbar-dark bg-dark px-3">
-    <span class="text-white fw-bold">Admin Panel</span>
-    <a href="{{ url_for('Logout') }}" class="btn btn-danger btn-sm">Logout</a>
-</nav>
 
-<div class="container mt-4">
-    <h3>Welcome {{ current_user.username }}</h3>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    <div class="row g-4 mt-4">
+<style>
+body {
+    background: linear-gradient(135deg, #0a1f33, #104d71);
+    font-family: 'Inter', sans-serif;
+    color: #e4e6eb;
+}
 
-        <div class="col-md-6 col-lg-4">
-            <div class="card gradient-1" onclick="window.location.href='/assign_roles'">
-                <i class="fas fa-user-shield"></i>
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    position: fixed;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(10px);
+    padding: 25px 0;
+}
+
+.sidebar .logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.sidebar .logo img {
+    width: 90px;
+}
+
+.sidebar a {
+    display: block;
+    padding: 12px 25px;
+    color: #cfd8dc;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    background: rgba(255,255,255,0.08);
+    color: #ffffff;
+}
+
+.main {
+    margin-left: 240px;
+    padding: 30px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.35);
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+}
+
+.card-box {
+    background: rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 30px;
+    transition: 0.3s;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.card-box:hover {
+    transform: translateY(-5px);
+    background: rgba(255,255,255,0.08);
+}
+
+.card-box h5 {
+    font-weight: 600;
+}
+
+.card-box p {
+    color: #b0bec5;
+    font-size: 0.95rem;
+}
+
+.btn-primary {
+    background: #1cc88a;
+    border: none;
+    border-radius: 8px;
+}
+
+.btn-primary:hover {
+    background: #17a673;
+}
+</style>
+
+<div class="sidebar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='secure.png') }}">
+    </div>
+
+    <a href="#">Dashboard</a>
+    <a href="#">User Management</a>
+    <a href="#">Roles</a>
+    <a href="#">Logs</a>
+    <a href="{{ url_for('Logout') }}">Logout</a>
+</div>
+
+<div class="main">
+
+    <div class="topbar">
+        <h5>Welcome, {{ current_user.username }}</h5>
+        <span>Admin Panel</span>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="card-box">
+                <h5>User Management</h5>
+                <p>View and edit user details.</p>
+                <button class="btn btn-primary">Manage</button>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card-box">
                 <h5>Assign Roles</h5>
-                <p>Manage user permissions</p>
+                <p>Control user permissions.</p>
+                <button class="btn btn-primary">Assign</button>
             </div>
         </div>
 
-        <div class="col-md-6 col-lg-4">
-            <div class="card gradient-3" onclick="window.location.href='/edit_users'">
-                <i class="fas fa-edit"></i>
-                <h5>Edit Users</h5>
-                <p>Update personal details of employees</p>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-4">
-            <div class="card gradient-4" onclick="window.location.href='/view_logs'">
-                <i class="fas fa-file-alt"></i>
-                <h5>View Logs</h5>
-                <p>See system activity logs</p>
+        <div class="col-md-4">
+            <div class="card-box">
+                <h5>System Logs</h5>
+                <p>Monitor system activity.</p>
+                <button class="btn btn-primary">View</button>
             </div>
         </div>
 
     </div>
+
 </div>
+
 {% endblock %}

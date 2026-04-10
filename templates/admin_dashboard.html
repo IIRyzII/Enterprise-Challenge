@@ -38,6 +38,7 @@ body {
     text-decoration: none;
     font-weight: 500;
     transition: 0.3s;
+    cursor: pointer;
 }
 
 .sidebar a:hover {
@@ -64,83 +65,210 @@ body {
     background: rgba(255,255,255,0.06);
     border-radius: 16px;
     padding: 30px;
-    transition: 0.3s;
     border: 1px solid rgba(255,255,255,0.08);
 }
 
 .card-box:hover {
-    transform: translateY(-5px);
     background: rgba(255,255,255,0.08);
 }
 
-.card-box h5 {
-    font-weight: 600;
+.table-box {
+    background: rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
 }
 
-.card-box p {
-    color: #b0bec5;
-    font-size: 0.95rem;
+table {
+    width: 100%;
+    color: white;
+}
+
+th, td {
+    padding: 12px;
+}
+
+td {
+    border-top: 1px solid rgba(255,255,255,0.08);
 }
 
 .btn-primary {
     background: #1cc88a;
     border: none;
     border-radius: 8px;
+    padding: 6px 14px;
 }
 
 .btn-primary:hover {
     background: #17a673;
 }
+
+.btn-outline-light {
+    border-color: rgba(255,255,255,0.3);
+    color: white;
+}
+
+.btn-outline-light:hover {
+    background: rgba(255,255,255,0.1);
+}
 </style>
 
+<!-- Sidebar -->
 <div class="sidebar">
     <div class="logo">
         <img src="{{ url_for('static', filename='secure.png') }}">
     </div>
 
-    <a href="#">Dashboard</a>
-    <a href="#">User Management</a>
-    <a href="#">Roles</a>
-    <a href="#">Logs</a>
-    <a href="#">Edit Profile</a>
+    <a onclick="showSection('dashboard')">Dashboard</a>
+    <a onclick="showSection('users')">User Management</a>
+    <a onclick="showSection('logs')">System Logs</a>
+    <a onclick="showSection('profile')">Edit Profile</a>
     <a href="{{ url_for('Logout') }}">Logout</a>
 </div>
 
+<!-- Main -->
 <div class="main">
 
     <div class="topbar">
-        <h5>Welcome, {{ current_user.username }}</h5>
+        <h5 id="page-title">Welcome, {{ current_user.username }}</h5>
         <span>Admin Panel</span>
     </div>
 
-    <div class="row g-4">
+    <!-- DASHBOARD -->
+    <div id="dashboard-section">
 
-        <div class="col-md-4">
-            <div class="card-box">
-                <h5>User Management</h5>
-                <p>View and edit user details.</p>
-                <button class="btn btn-primary">Manage</button>
-            </div>
-        </div>
+        <div class="row g-4">
 
-        <div class="col-md-4">
-            <div class="card-box">
-                <h5>Assign Roles</h5>
-                <p>Control user permissions.</p>
-                <button class="btn btn-primary">Assign</button>
+            <div class="col-md-4">
+                <div class="card-box">
+                    <h5>User Management</h5>
+                    <p>View and edit user details.</p>
+                    <button class="btn btn-primary" onclick="showSection('users')">Manage</button>
+                </div>
             </div>
-        </div>
 
-        <div class="col-md-4">
-            <div class="card-box">
-                <h5>System Logs</h5>
-                <p>Monitor system activity.</p>
-                <button class="btn btn-primary">View</button>
+            <div class="col-md-4">
+                <div class="card-box">
+                    <h5>System Logs</h5>
+                    <p>Monitor system activity.</p>
+                    <button class="btn btn-primary" onclick="showSection('logs')">View</button>
+                </div>
             </div>
+
+            <div class="col-md-4">
+                <div class="card-box">
+                    <h5>Edit Profile</h5>
+                    <p>Update your account details.</p>
+                    <button class="btn btn-primary" onclick="showSection('profile')">Edit</button>
+                </div>
+            </div>
+
         </div>
 
     </div>
 
+    <!-- USER MANAGEMENT -->
+    <div id="users-section" style="display:none;">
+        <div class="table-box">
+            <h5>Users</h5>
+
+            {% set users = [
+                {'name':'Alice Johnson','email':'alice@email.com','role':'Admin'},
+                {'name':'Michael Smith','email':'mike@email.com','role':'Manager'},
+                {'name':'Sarah Williams','email':'sarah@email.com','role':'Employee'},
+                {'name':'David Brown','email':'david@email.com','role':'Employee'},
+                {'name':'Emily Davis','email':'emily@email.com','role':'HR'},
+                {'name':'James Wilson','email':'james@email.com','role':'Security'}
+            ] %}
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>{{ u.name }}</td>
+                        <td>{{ u.email }}</td>
+                        <td>{{ u.role }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SYSTEM LOGS -->
+    <div id="logs-section" style="display:none;">
+        <div class="card-box">
+            <h5>System Logs</h5>
+
+            <ul>
+                <li>User Alice logged in</li>
+                <li>Manager created a shift</li>
+                <li>System updated successfully</li>
+                <li>User Michael changed password</li>
+                <li>New employee added</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- EDIT PROFILE -->
+    <div id="profile-section" style="display:none;">
+        <div class="card-box">
+            <h5>Edit Profile</h5>
+
+            <form>
+                <label>Username</label><br>
+                <input type="text" value="{{ current_user.username }}" style="width:100%; padding:8px; margin-bottom:10px;">
+
+                <label>Email</label><br>
+                <input type="email" value="{{ current_user.email }}" style="width:100%; padding:8px; margin-bottom:10px;">
+
+                <button class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
 </div>
+
+<!-- JS -->
+<script>
+function showSection(section) {
+    document.getElementById('dashboard-section').style.display = 'none';
+    document.getElementById('users-section').style.display = 'none';
+    document.getElementById('logs-section').style.display = 'none';
+    document.getElementById('profile-section').style.display = 'none';
+
+    if (section === 'dashboard') {
+        document.getElementById('dashboard-section').style.display = 'block';
+        document.getElementById('page-title').innerText = "Welcome, {{ current_user.username }}";
+    }
+
+    if (section === 'users') {
+        document.getElementById('users-section').style.display = 'block';
+        document.getElementById('page-title').innerText = "User Management";
+    }
+
+    if (section === 'logs') {
+        document.getElementById('logs-section').style.display = 'block';
+        document.getElementById('page-title').innerText = "System Logs";
+    }
+
+    if (section === 'profile') {
+        document.getElementById('profile-section').style.display = 'block';
+        document.getElementById('page-title').innerText = "Edit Profile";
+    }
+}
+
+window.onload = function() {
+    showSection('dashboard');
+};
+</script>
 
 {% endblock %}

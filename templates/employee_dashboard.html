@@ -38,6 +38,7 @@ body {
     text-decoration: none;
     font-weight: 500;
     transition: 0.3s;
+    cursor: pointer;
 }
 
 .sidebar a:hover {
@@ -64,28 +65,38 @@ body {
     background: rgba(255,255,255,0.06);
     border-radius: 16px;
     padding: 30px;
-    transition: 0.3s;
     border: 1px solid rgba(255,255,255,0.08);
 }
 
 .card-box:hover {
-    transform: translateY(-5px);
     background: rgba(255,255,255,0.08);
 }
 
-.card-box h5 {
-    font-weight: 600;
+.table-box {
+    background: rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
 }
 
-.card-box p {
-    color: #b0bec5;
-    font-size: 0.95rem;
+table {
+    width: 100%;
+    color: white;
+}
+
+th, td {
+    padding: 12px;
+}
+
+td {
+    border-top: 1px solid rgba(255,255,255,0.08);
 }
 
 .btn-primary {
     background: #1cc88a;
     border: none;
     border-radius: 8px;
+    padding: 6px 14px;
 }
 
 .btn-primary:hover {
@@ -93,45 +104,155 @@ body {
 }
 </style>
 
+<!-- Sidebar -->
 <div class="sidebar">
     <div class="logo">
         <img src="{{ url_for('static', filename='secure.png') }}">
     </div>
 
-    <a href="#">Dashboard</a>
-    <a href="#">My Shifts</a>
-    <a href="#">Availability</a>
-    <a href#="#">Edit Profile</a>
+    <a onclick="showSection('dashboard')">Dashboard</a>
+    <a onclick="showSection('shifts')">My Shifts</a>
+    <a onclick="showSection('availability')">Availability</a>
+    <a onclick="showSection('profile')">Edit Profile</a>
     <a href="{{ url_for('Logout') }}">Logout</a>
 </div>
 
+<!-- Main -->
 <div class="main">
 
     <div class="topbar">
-        <h5>Welcome, {{ current_user.username }}</h5>
+        <h5 id="page-title">Welcome, {{ current_user.username }}</h5>
         <span>Employee Panel</span>
     </div>
 
-    <div class="row g-4">
+    <!-- DASHBOARD -->
+    <div id="dashboard-section">
 
-        <div class="col-md-6">
-            <div class="card-box">
-                <h5>My Shifts</h5>
-                <p>View your assigned work schedule.</p>
-                <button class="btn btn-primary">View</button>
-            </div>
-        </div>
+        <div class="row g-4">
 
-        <div class="col-md-6">
-            <div class="card-box">
-                <h5>Availability</h5>
-                <p>Update your working availability.</p>
-                <button class="btn btn-primary">Update</button>
+            <div class="col-md-6">
+                <div class="card-box">
+                    <h5>My Shifts</h5>
+                    <p>View your assigned work schedule.</p>
+                    <button class="btn btn-primary" onclick="showSection('shifts')">View</button>
+                </div>
             </div>
+
+            <div class="col-md-6">
+                <div class="card-box">
+                    <h5>Availability</h5>
+                    <p>Update your working availability.</p>
+                    <button class="btn btn-primary" onclick="showSection('availability')">Update</button>
+                </div>
+            </div>
+
         </div>
 
     </div>
 
+    <!-- MY SHIFTS -->
+    <div id="shifts-section" style="display:none;">
+        <div class="table-box">
+            <h5>My Shifts</h5>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>Monday</td>
+                        <td>09:00 - 17:00</td>
+                        <td>Cashier</td>
+                    </tr>
+                    <tr>
+                        <td>Wednesday</td>
+                        <td>12:00 - 20:00</td>
+                        <td>Stock</td>
+                    </tr>
+                    <tr>
+                        <td>Friday</td>
+                        <td>10:00 - 18:00</td>
+                        <td>Support</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- AVAILABILITY -->
+    <div id="availability-section" style="display:none;">
+        <div class="card-box">
+            <h5>Update Availability</h5>
+
+            <form>
+                <label>Available Days</label><br>
+                <input type="text" placeholder="e.g. Mon, Wed, Fri" style="width:100%; padding:8px; margin-bottom:10px;">
+
+                <label>Preferred Hours</label><br>
+                <input type="text" placeholder="e.g. 9am - 5pm" style="width:100%; padding:8px; margin-bottom:10px;">
+
+                <button class="btn btn-primary">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- EDIT PROFILE -->
+    <div id="profile-section" style="display:none;">
+        <div class="card-box">
+            <h5>Edit Profile</h5>
+
+            <form>
+                <label>Username</label><br>
+                <input type="text" value="{{ current_user.username }}" style="width:100%; padding:8px; margin-bottom:10px;">
+
+                <label>Email</label><br>
+                <input type="email" value="{{ current_user.email }}" style="width:100%; padding:8px; margin-bottom:10px;">
+
+                <button class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
 </div>
+
+<!-- JS -->
+<script>
+function showSection(section) {
+    document.getElementById('dashboard-section').style.display = 'none';
+    document.getElementById('shifts-section').style.display = 'none';
+    document.getElementById('availability-section').style.display = 'none';
+    document.getElementById('profile-section').style.display = 'none';
+
+    if (section === 'dashboard') {
+        document.getElementById('dashboard-section').style.display = 'block';
+        document.getElementById('page-title').innerText = "Welcome, {{ current_user.username }}";
+    }
+
+    if (section === 'shifts') {
+        document.getElementById('shifts-section').style.display = 'block';
+        document.getElementById('page-title').innerText = "My Shifts";
+    }
+
+    if (section === 'availability') {
+        document.getElementById('availability-section').style.display = 'block';
+        document.getElementById('page-title').innerText = "Availability";
+    }
+
+    if (section === 'profile') {
+        document.getElementById('profile-section').style.display = 'block';
+        document.getElementById('page-title').innerText = "Edit Profile";
+    }
+}
+
+window.onload = function() {
+    showSection('dashboard');
+};
+</script>
 
 {% endblock %}

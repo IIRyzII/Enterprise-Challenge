@@ -23,7 +23,6 @@ body {
     padding: 25px 0;
 }
 
-/* Logo */
 .sidebar .logo {
     text-align: center;
     margin-bottom: 30px;
@@ -33,7 +32,6 @@ body {
     width: 90px;
 }
 
-/* Sidebar links */
 .sidebar a {
     display: block;
     padding: 12px 25px;
@@ -41,6 +39,7 @@ body {
     text-decoration: none;
     font-weight: 500;
     transition: 0.3s;
+    cursor: pointer;
 }
 
 .sidebar a:hover {
@@ -79,26 +78,35 @@ body {
     background: rgba(255,255,255,0.08);
 }
 
-/* Titles */
-.card-box h5 {
-    font-weight: 600;
-    margin-bottom: 10px;
+/* Table */
+.table-box {
+    background: rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
 }
 
-.card-box p {
-    color: #b0bec5;
-    font-size: 0.95rem;
+table {
+    width: 100%;
+    color: white;
+}
+
+th, td {
+    padding: 12px;
+}
+
+td {
+    border-top: 1px solid rgba(255,255,255,0.08);
 }
 
 /* Buttons */
 .btn-action {
-    margin-top: 15px;
+    margin-top: 10px;
     border-radius: 8px;
-    padding: 8px 16px;
-    font-size: 0.9rem;
+    padding: 6px 14px;
+    font-size: 0.85rem;
 }
 
-/* Accent button */
 .btn-primary {
     background: #1cc88a;
     border: none;
@@ -108,7 +116,6 @@ body {
     background: #17a673;
 }
 
-/* Secondary button */
 .btn-outline-light {
     border-color: rgba(255,255,255,0.3);
     color: white;
@@ -126,9 +133,9 @@ body {
         <img src="{{ url_for('static', filename='secure.png') }}">
     </div>
 
-    <a href="#">Dashboard</a>
+    <a onclick="showSection('dashboard')">Dashboard</a>
+    <a onclick="showSection('employees')">Employees</a>
     <a href="#">Shifts</a>
-    <a href="#">Employees</a>
     <a href="#">Reports</a>
     <a href="#">Edit Profile</a>
     <a href="{{ url_for('Logout') }}">Logout</a>
@@ -138,57 +145,152 @@ body {
 <!-- Main -->
 <div class="main">
 
-    <!-- Topbar -->
     <div class="topbar">
-        <h5 style="margin:0;">Welcome, {{ current_user.username }}</h5>
+        <h5 style="margin:0;" id="page-title">Welcome, {{ current_user.username }}</h5>
         <span style="opacity:0.7;">Manager Panel</span>
     </div>
 
-    <!-- Cards -->
-    <div class="row g-4">
+    <!-- DASHBOARD -->
+    <div id="dashboard-section">
 
-        <div class="col-md-4">
-            <div class="card-box">
-                <h5>Add Shift</h5>
-                <p>Create and assign new shifts to employees.</p>
-                <button class="btn btn-primary btn-action">Add</button>
+        <div class="row g-4">
+
+            <div class="col-md-4">
+                <div class="card-box">
+                    <h5>Add Shift</h5>
+                    <p>Create and assign new shifts to employees.</p>
+                    <button class="btn btn-primary btn-action">Add</button>
+                </div>
             </div>
+
+            <div class="col-md-4">
+                <div class="card-box">
+                    <h5>Remove Shift</h5>
+                    <p>Delete or modify existing shift schedules.</p>
+                    <button class="btn btn-outline-light btn-action">Manage</button>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-box">
+                    <h5>Employees</h5>
+                    <p>View and manage employee details.</p>
+                    <button class="btn btn-outline-light btn-action"
+                            onclick="showSection('employees')">
+                        View
+                    </button>
+                </div>
+            </div>
+
         </div>
 
-        <div class="col-md-4">
-            <div class="card-box">
-                <h5>Remove Shift</h5>
-                <p>Delete or modify existing shift schedules.</p>
-                <button class="btn btn-outline-light btn-action">Manage</button>
-            </div>
+    </div>
+
+    <!-- EMPLOYEES LIST -->
+    <div id="employees-section" style="display:none;">
+
+        <div class="table-box">
+            <h5>Employees</h5>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+    {% set demo_employees = [
+        {'username': 'Alice Johnson', 'email': 'alice.johnson@email.com', 'role': 'Cashier'},
+        {'username': 'Michael Smith', 'email': 'm.smith@email.com', 'role': 'Supervisor'},
+        {'username': 'Sarah Williams', 'email': 'sarah.w@email.com', 'role': 'Assistant Manager'},
+        {'username': 'David Brown', 'email': 'david.b@email.com', 'role': 'Stock Assistant'},
+        {'username': 'Emily Davis', 'email': 'emily.d@email.com', 'role': 'HR'},
+        {'username': 'James Wilson', 'email': 'j.wilson@email.com', 'role': 'Security Officer'},
+        {'username': 'Olivia Taylor', 'email': 'olivia.t@email.com', 'role': 'Cleaner'},
+        {'username': 'Daniel Anderson', 'email': 'dan.anderson@email.com', 'role': 'Technician'}
+    ] %}
+
+    {% for emp in demo_employees %}
+    <tr>
+        <td>{{ emp.username }}</td>
+        <td>{{ emp.email }}</td>
+        <td>{{ emp.role }}</td>
+        <td>
+            <button class="btn btn-outline-light btn-action"
+                    data-name="{{ emp.username }}"
+                    data-email="{{ emp.email }}"
+                    data-role="{{ emp.role }}"
+                    onclick="showEmployee(this)">
+                View
+            </button>
+        </td>
+    </tr>
+    {% endfor %}
+
+</tbody>
+            </table>
         </div>
 
-        <div class="col-md-4">
-            <div class="card-box">
-                <h5>Employees</h5>
-                <p>View and manage employee details.</p>
-                <button class="btn btn-outline-light btn-action">View</button>
-            </div>
-        </div>
+    </div>
 
-        <div class="col-md-6">
-            <div class="card-box">
-                <h5>Reports</h5>
-                <p>Analyze shift performance and workforce data.</p>
-                <button class="btn btn-outline-light btn-action">Open</button>
-            </div>
-        </div>
+    <!-- EMPLOYEE DETAIL -->
+    <div id="employee-detail-section" style="display:none;">
 
-        <div class="col-md-6">
-            <div class="card-box">
-                <h5>Settings</h5>
-                <p>Configure system preferences and rules.</p>
-                <button class="btn btn-outline-light btn-action">Configure</button>
-            </div>
+        <div class="card-box">
+            <h4 id="emp-name"></h4>
+            <p><strong>Email:</strong> <span id="emp-email"></span></p>
+            <p><strong>Role:</strong> <span id="emp-role"></span></p>
+
+            <button class="btn btn-outline-light btn-action"
+                    onclick="showSection('employees')">
+                Back
+            </button>
         </div>
 
     </div>
 
 </div>
+
+<!-- JS -->
+<script>
+function showSection(section) {
+    document.getElementById('dashboard-section').style.display = 'none';
+    document.getElementById('employees-section').style.display = 'none';
+    document.getElementById('employee-detail-section').style.display = 'none';
+
+    if (section === 'dashboard') {
+        document.getElementById('dashboard-section').style.display = 'block';
+        document.getElementById('page-title').innerText = "Welcome, {{ current_user.username }}";
+    }
+
+    if (section === 'employees') {
+        document.getElementById('employees-section').style.display = 'block';
+        document.getElementById('page-title').innerText = "Employees";
+    }
+
+    if (section === 'employee-detail') {
+        document.getElementById('employee-detail-section').style.display = 'block';
+        document.getElementById('page-title').innerText = "Employee Details";
+    }
+}
+
+function showEmployee(btn) {
+    document.getElementById('emp-name').innerText = btn.dataset.name;
+    document.getElementById('emp-email').innerText = btn.dataset.email;
+    document.getElementById('emp-role').innerText = btn.dataset.role;
+
+    showSection('employee-detail');
+}
+
+// default load
+window.onload = function() {
+    showSection('dashboard');
+};
+</script>
 
 {% endblock %}

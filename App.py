@@ -84,7 +84,7 @@ def SignUpPage():
             flash("Password must be at least 8 characters long.")
             return render_template("SignUpPage.html")
 
-        if role not in ["employee", "manager", "admin"]:
+        if role not in ["Employee", "Manager", "Admin"]:
             flash("Please select a valid role.")
             return render_template("SignUpPage.html")
         
@@ -137,9 +137,9 @@ def LoginPage():
 @app.route("/Dashboard")
 @login_required
 def Dashboard():
-    if current_user.role == "admin":
+    if current_user.role == "Admin":
         return redirect(url_for("admin_dashboard"))
-    elif current_user.role == "manager":
+    elif current_user.role == "Manager":
         return redirect(url_for("manager_dashboard"))
     else:
         return redirect(url_for("employee_dashboard"))

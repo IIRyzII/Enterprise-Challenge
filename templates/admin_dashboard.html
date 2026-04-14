@@ -111,6 +111,58 @@ td {
 .btn-outline-light:hover {
     background: rgba(255,255,255,0.1);
 }
+
+/* ================= LOGS DESIGN ================= */
+
+.logs-container {
+    margin-top: 15px;
+}
+
+.log-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: 0.3s;
+    border-left: 3px solid #1cc88a;
+}
+
+.log-item:hover {
+    background: rgba(255,255,255,0.08);
+    transform: translateX(4px);
+}
+
+.log-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    background: rgba(28, 200, 138, 0.15);
+    color: #1cc88a;
+}
+
+.log-content {
+    flex: 1;
+}
+
+.log-message {
+    font-weight: 500;
+    color: #e4e6eb;
+}
+
+.log-time {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 2px;
+}
 </style>
 
 <!-- Sidebar -->
@@ -208,13 +260,28 @@ td {
         <div class="card-box">
             <h5>System Logs</h5>
 
-            <ul>
-                <li>User Alice logged in</li>
-                <li>Manager created a shift</li>
-                <li>System updated successfully</li>
-                <li>User Michael changed password</li>
-                <li>New employee added</li>
-            </ul>
+            <div class="logs-container">
+
+                {% set logs = [
+                    {'msg':'User Alice logged in','time':'10:15 AM'},
+                    {'msg':'Manager created a shift','time':'10:45 AM'},
+                    {'msg':'System updated successfully','time':'11:10 AM'},
+                    {'msg':'User Michael changed password','time':'11:30 AM'},
+                    {'msg':'New employee added','time':'12:05 PM'}
+                ] %}
+
+                {% for log in logs %}
+                <div class="log-item">
+                    <div class="log-icon">●</div>
+
+                    <div class="log-content">
+                        <div class="log-message">{{ log.msg }}</div>
+                        <div class="log-time">{{ log.time }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
         </div>
     </div>
 

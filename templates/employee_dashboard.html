@@ -13,6 +13,7 @@ body {
     color: #e4e6eb;
 }
 
+/* SIDEBAR */
 .sidebar {
     width: 240px;
     height: 100vh;
@@ -46,11 +47,13 @@ body {
     color: #ffffff;
 }
 
+/* MAIN */
 .main {
     margin-left: 240px;
     padding: 30px;
 }
 
+/* TOPBAR */
 .topbar {
     display: flex;
     justify-content: space-between;
@@ -61,6 +64,7 @@ body {
     margin-bottom: 30px;
 }
 
+/* CARD */
 .card-box {
     background: rgba(255,255,255,0.06);
     border-radius: 16px;
@@ -72,26 +76,7 @@ body {
     background: rgba(255,255,255,0.08);
 }
 
-.table-box {
-    background: rgba(255,255,255,0.06);
-    border-radius: 16px;
-    padding: 20px;
-    border: 1px solid rgba(255,255,255,0.08);
-}
-
-table {
-    width: 100%;
-    color: white;
-}
-
-th, td {
-    padding: 12px;
-}
-
-td {
-    border-top: 1px solid rgba(255,255,255,0.08);
-}
-
+/* BUTTON */
 .btn-primary {
     background: #1cc88a;
     border: none;
@@ -102,9 +87,126 @@ td {
 .btn-primary:hover {
     background: #17a673;
 }
+
+/* ================= SHIFTS ================= */
+
+.shifts-container {
+    margin-top: 15px;
+}
+
+.shift-card {
+    display: grid;
+    grid-template-columns: 160px 1fr 120px; /* FIXED WIDTHS */
+    align-items: center;
+    gap: 15px;
+
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: 0.3s;
+}
+
+.shift-card:hover {
+    background: rgba(255,255,255,0.08);
+    transform: translateY(-2px);
+}
+
+/* LEFT (DAY + TIME) */
+.shift-left {
+    display: flex;
+    flex-direction: column;
+}
+
+/* CENTER (ROLE) */
+.shift-middle {
+    display: flex;
+    justify-content: center;
+}
+
+/* RIGHT (STATUS) */
+.shift-right {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* TEXT */
+.shift-day {
+    font-weight: 600;
+    white-space: nowrap; /* PREVENT BREAK */
+}
+
+.shift-time {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+}
+
+/* BADGES */
+.shift-role {
+    background: rgba(28, 200, 138, 0.15);
+    color: #1cc88a;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    min-width: 90px;
+    text-align: center;
+}
+
+.shift-badge {
+    border: 1px solid #1cc88a;
+    color: #1cc88a;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    min-width: 90px;
+    text-align: center;
+}
+
+/* ✅ MOBILE FIX */
+@media (max-width: 768px) {
+    .shift-card {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .shift-middle,
+    .shift-right {
+        justify-content: flex-start;
+    }
+}
+/* ================= INPUT ================= */
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    font-size: 13px;
+    margin-bottom: 5px;
+    display: block;
+    color: rgba(255,255,255,0.7);
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05);
+    color: white;
+    transition: 0.3s;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #1cc88a;
+    background: rgba(255,255,255,0.08);
+}
 </style>
 
-<!-- Sidebar -->
+<!-- SIDEBAR -->
 <div class="sidebar">
     <div class="logo">
         <img src="{{ url_for('static', filename='secure.png') }}">
@@ -117,7 +219,7 @@ td {
     <a href="{{ url_for('Logout') }}">Logout</a>
 </div>
 
-<!-- Main -->
+<!-- MAIN -->
 <div class="main">
 
     <div class="topbar">
@@ -127,9 +229,7 @@ td {
 
     <!-- DASHBOARD -->
     <div id="dashboard-section">
-
         <div class="row g-4">
-
             <div class="col-md-6">
                 <div class="card-box">
                     <h5>My Shifts</h5>
@@ -145,43 +245,40 @@ td {
                     <button class="btn btn-primary" onclick="showSection('availability')">Update</button>
                 </div>
             </div>
-
         </div>
-
     </div>
 
     <!-- MY SHIFTS -->
     <div id="shifts-section" style="display:none;">
-        <div class="table-box">
+        <div class="card-box">
             <h5>My Shifts</h5>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Role</th>
-                    </tr>
-                </thead>
+            <div class="shifts-container">
 
-                <tbody>
-                    <tr>
-                        <td>Monday</td>
-                        <td>09:00 - 17:00</td>
-                        <td>Cashier</td>
-                    </tr>
-                    <tr>
-                        <td>Wednesday</td>
-                        <td>12:00 - 20:00</td>
-                        <td>Stock</td>
-                    </tr>
-                    <tr>
-                        <td>Friday</td>
-                        <td>10:00 - 18:00</td>
-                        <td>Support</td>
-                    </tr>
-                </tbody>
-            </table>
+                {% set shifts = [
+                    {'day':'Monday','time':'09:00 - 17:00','role':'Cashier','status':'Upcoming'},
+                    {'day':'Wednesday','time':'12:00 - 20:00','role':'Stock','status':'Today'},
+                    {'day':'Friday','time':'10:00 - 18:00','role':'Support','status':'Upcoming'}
+                ] %}
+
+                {% for shift in shifts %}
+               <div class="shift-card">
+    <div class="shift-left">
+        <div class="shift-day">{{ shift.day }}</div>
+        <div class="shift-time">{{ shift.time }}</div>
+    </div>
+
+    <div class="shift-middle">
+        <span class="shift-role">{{ shift.role }}</span>
+    </div>
+
+    <div class="shift-right">
+        <span class="shift-badge">{{ shift.status }}</span>
+    </div>
+</div>
+                {% endfor %}
+
+            </div>
         </div>
     </div>
 
@@ -191,18 +288,22 @@ td {
             <h5>Update Availability</h5>
 
             <form>
-                <label>Available Days</label><br>
-                <input type="text" placeholder="e.g. Mon, Wed, Fri" style="width:100%; padding:8px; margin-bottom:10px;">
+                <div class="input-group">
+                    <label>Available Days</label>
+                    <input type="text" placeholder="e.g. Mon, Wed, Fri">
+                </div>
 
-                <label>Preferred Hours</label><br>
-                <input type="text" placeholder="e.g. 9am - 5pm" style="width:100%; padding:8px; margin-bottom:10px;">
+                <div class="input-group">
+                    <label>Preferred Hours</label>
+                    <input type="text" placeholder="e.g. 9am - 5pm">
+                </div>
 
                 <button class="btn btn-primary">Save</button>
             </form>
         </div>
     </div>
 
-    <!-- EDIT PROFILE -->
+    <!-- PROFILE -->
     <div id="profile-section" style="display:none;">
         <div class="card-box">
             <h5>Edit Profile</h5>

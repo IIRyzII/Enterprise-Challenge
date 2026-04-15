@@ -22,16 +22,43 @@ import bcrypt
 # This section is the prerequisite for the app ---------------------------------
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY","change")
+
+#Database connection with render
 _db_url = os.environ.get("DATABASE_URL","sqlite:///secure_future.db")
 if _db_url.startswith("postgres://","postgresql://"):
     _db_url = _db_url.replace("postgres://","postgresql://",1)
 app.config["SQLALCHEMY_DATABASE_URI"] = _db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-db = SQLAlchemy(app)
+#This configures the Flask-Mail extension to use Gmail's SMTP server. The email and password for the Gmail account are stored in environment variables for security.
+app.config["MAIL_SERVER"] = "os.environ.get('MAIL_SERVER','smtp.gmail.com')"
+app.config["MAIL_PORT"] = int(os.environ.get("MAIL_PORT",587))
+app.config["MAIL_USE_TLS"] = os.environ.get("MAIL_USE_TLS","True").lower() == "true"
+app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME","")
+app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD","")
+app.config["MAIL_DEFAULT_SENDER"] = (os.environ.get("MAIL_DEFAULT_SENDER","SecureFuture Solutions"), os.environ.get("MAIL_USERNAME",""))
 
+INVITE_EXPIRY_HOURS = int(os.environ.get("INVITE_EXPIRY_HOURS",24))
+
+app.config[PERMANENT_SESSION_LIFETIME] = timedelta(minutes=15)
+
+db = SQLAlchemy(app)
+mail = Mail(app)
+csrf = CSRFProtect(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "LoginPage"
+
+# request limiter to prevent brute force attacks on login and signup routes
+limiter = Limiter(
+    key_func=get_remote_address,
+    app = app,
+    default_limits=["2000 per day", "500 per hour"],
+    storage_uri="memory://",
+)
+
+#logging security
+logging.basicConfig(level = logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+security_logger = logging.getLogger("security")
 # End of Prerequisite Section ---------------------------------------------
 
 

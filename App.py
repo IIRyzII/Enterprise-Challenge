@@ -3,25 +3,29 @@ This app is for SecureFuture Solutions LTD
 
 
 """
+import re,io,base64,logging,uuid,os
+from datetime import datetime, timezone, timedelta
+from dotenv import load_dotenv
+load_dotenv()
 
-from flask import Flask, render_template, redirect, url_for, request,flash
-
+import bleach,pyotp,qrcode
+from flask import (Flask,render_template,redirect,url_for,request,flash,session,abort)
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import (
-    LoginManager,
-    UserMixin,
-    login_user,
-    logout_user,
-    login_required,
-    current_user,
-)
+from flask_login import (LoginManager,UserMixin,login_user,logout_user,current_user,login_required)
 
+from flask_mail import Mail, Message
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_wtf.crsf import CSRFProtect
 import bcrypt
 
 # This section is the prerequisite for the app ---------------------------------
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "DioGoDaLot"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///secure_future.db"
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY","change")
+_db_url = os.environ.get("DATABASE_URL","sqlite:///secure_future.db")
+if _db_url.startswith("postgres://","postgresql://"):
+    _db_url = _db_url.replace("postgres://","postgresql://",1)
+app.config["SQLALCHEMY_DATABASE_URI"] = _db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)

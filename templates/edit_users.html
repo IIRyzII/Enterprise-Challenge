@@ -82,3 +82,13 @@
 
 {% endblock %}
 {% block extra_js %}<script>setTimeout(()=>document.querySelectorAll('.toast').forEach(t=>t.remove()),3000)</script>{% endblock %}
+
+<style>
+    .table-box table .form-select-dark {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #fff;
+    }
+    .table-box table .form-select-dark:focus {
+        box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+    }

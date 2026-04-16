@@ -2,119 +2,56 @@
 <html>
 <head>
     <title>{% block title %}{% endblock %}</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-body {
-    background: #f5f7fb;
-    font-family: 'Segoe UI', sans-serif;
-}
-
-/* Navbar */
-.navbar {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-/* Headings */
-h3 {
-    font-weight: 600;
-    color: #333;
-}
-
-/* Cards */
-.card {
-    border: none;
-    border-radius: 20px;
-    padding: 40px;
-    min-height: 180px; /* bigger card */
-    color: white;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-}
-
-/* Hover effect */
-.card:hover {
-    transform: translateY(-10px) scale(1.03);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-}
-
-/* Subtle shine effect */
-.card::before {
-    content: "";
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background: rgba(255,255,255,0.05);
-    transform: rotate(45deg);
-    top: -100%;
-    left: -100%;
-    transition: 0.5s;
-}
-
-.card:hover::before {
-    top: 100%;
-    left: 100%;
-}
-
-/* Gradient backgrounds */
-.gradient-1 { background: linear-gradient(135deg, #4e73df, #224abe); }
-.gradient-2 { background: linear-gradient(135deg, #1cc88a, #13855c); }
-.gradient-3 { background: linear-gradient(135deg, #f6c23e, #dda20a); }
-.gradient-4 { background: linear-gradient(135deg, #e74a3b, #c0392b); }
-
-/* Card text */
-.card h5 {
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-
-.card p {
-    opacity: 0.9;
-    font-size: 1.1rem;
-}
-
-/* Icons bigger */
-.card i {
-    font-size: 2.5rem;
-    margin-bottom: 15px;
-}
-
-/* Layout spacing */
-.container {
-    max-width: 1200px;
-}
-
-/* Buttons */
-.btn {
-    border-radius: 10px;
-}
-
-/* Initial fade animation */
-.card {
-    opacity: 0;
-    transform: translateY(20px);
-}
-</style>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll('.card').forEach((card, i) => {
-        setTimeout(() => {
-            card.style.transition = "0.6s ease";
-            card.style.opacity = 1;
-            card.style.transform = "translateY(0)";
-        }, i * 150);
-    });
-});
-</script>
+    body {
+        background: linear-gradient(135deg, #0a1f33, #104d71);
+        font-family: 'Inter', sans-serif;
+        color: #e4e6eb;
+        margin: 0;
+    }
+    .sidebar { width: 240px; height: 100vh; position: fixed; background: rgba(0,0,0,0.35); backdrop-filter: blur(10px); padding: 25px 0; z-index: 10; }
+    .sidebar .logo { text-align: center; margin-bottom: 30px; }
+    .sidebar .logo img { width: 90px; }
+    .sidebar a { display: block; padding: 12px 25px; color: #cfd8dc; text-decoration: none; font-weight: 500; transition: 0.3s; cursor: pointer; }
+    .sidebar a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .sidebar a.active { background: rgba(255,255,255,0.1); color: #1cc88a; }
+    .main { margin-left: 240px; padding: 30px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.35); padding: 15px 20px; border-radius: 12px; margin-bottom: 30px; }
+    .card-box { background: rgba(255,255,255,0.06); border-radius: 16px; padding: 30px; transition: 0.3s; border: 1px solid rgba(255,255,255,0.08); }
+    .card-box:hover { transform: translateY(-5px); background: rgba(255,255,255,0.08); }
+    .card-box h5 { font-weight: 600; }
+    .card-box p { color: #b0bec5; font-size: 0.95rem; }
+    .table-box { background: rgba(255,255,255,0.06); border-radius: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
+    .table-box table { width: 100%; color: white; background: transparent; }
+    .table-box th, .table-box td { padding: 12px; }
+    .table-box td { border-top: 1px solid rgba(255,255,255,0.08); }
+    .table-box thead { background: rgba(0,0,0,0.2); }
+    .btn-primary { background: #1cc88a; border: none; border-radius: 8px; }
+    .btn-primary:hover { background: #17a673; }
+    .btn-outline-light { border-color: rgba(255,255,255,0.3); color: white; }
+    .btn-outline-light:hover { background: rgba(255,255,255,0.1); }
+    .btn-action { margin-top: 10px; border-radius: 8px; padding: 6px 14px; font-size: 0.85rem; }
+    .stat-card { border-radius: 14px; padding: 20px; text-align: center; color: white; }
+    .stat-card .num { font-size: 1.8rem; font-weight: 700; }
+    .stat-card .label { opacity: 0.85; font-size: 0.9rem; }
+    .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+    .form-control-dark { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: white; border-radius: 8px; padding: 12px; }
+    .form-control-dark::placeholder { color: rgba(255,255,255,0.5); }
+    .form-control-dark:focus { border-color: #1cc88a; box-shadow: none; background: rgba(255,255,255,0.12); color: white; }
+    .form-select-dark { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: white; border-radius: 8px; padding: 10px; }
+    .form-select-dark option { background: #0a1f33; color: white; }
+    .log-item { display: flex; align-items: center; padding: 12px 15px; border-radius: 10px; margin-bottom: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); transition: 0.3s; border-left: 3px solid #1cc88a; }
+    .log-item:hover { background: rgba(255,255,255,0.08); transform: translateX(4px); }
+    .log-item.failed { border-left-color: #e74a3b; }
+    .log-item.sql-alert { border-left-color: #f6c23e; }
+    </style>
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
     {% block content %}{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

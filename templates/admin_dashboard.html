@@ -1,341 +1,74 @@
 {% extends "base.html" %}
-
 {% block title %}Admin Dashboard{% endblock %}
-
 {% block content %}
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
 <style>
-body {
-    background: linear-gradient(135deg, #0a1f33, #104d71);
-    font-family: 'Inter', sans-serif;
-    color: #e4e6eb;
-}
-
-.sidebar {
-    width: 240px;
-    height: 100vh;
-    position: fixed;
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(10px);
-    padding: 25px 0;
-}
-
-.sidebar .logo {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.sidebar .logo img {
-    width: 90px;
-}
-
-.sidebar a {
-    display: block;
-    padding: 12px 25px;
-    color: #cfd8dc;
-    text-decoration: none;
-    font-weight: 500;
-    transition: 0.3s;
-    cursor: pointer;
-}
-
-.sidebar a:hover {
-    background: rgba(255,255,255,0.08);
-    color: #ffffff;
-}
-
-.main {
-    margin-left: 240px;
-    padding: 30px;
-}
-
-.topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(0,0,0,0.35);
-    padding: 15px 20px;
-    border-radius: 12px;
-    margin-bottom: 30px;
-}
-
-.card-box {
-    background: rgba(255,255,255,0.06);
-    border-radius: 16px;
-    padding: 30px;
-    border: 1px solid rgba(255,255,255,0.08);
-}
-
-.card-box:hover {
-    background: rgba(255,255,255,0.08);
-}
-
-.table-box {
-    background: rgba(255,255,255,0.06);
-    border-radius: 16px;
-    padding: 20px;
-    border: 1px solid rgba(255,255,255,0.08);
-}
-
-table {
-    width: 100%;
-    color: white;
-}
-
-th, td {
-    padding: 12px;
-}
-
-td {
-    border-top: 1px solid rgba(255,255,255,0.08);
-}
-
-.btn-primary {
-    background: #1cc88a;
-    border: none;
-    border-radius: 8px;
-    padding: 6px 14px;
-}
-
-.btn-primary:hover {
-    background: #17a673;
-}
-
-.btn-outline-light {
-    border-color: rgba(255,255,255,0.3);
-    color: white;
-}
-
-.btn-outline-light:hover {
-    background: rgba(255,255,255,0.1);
-}
-
-/* ================= LOGS DESIGN ================= */
-
-.logs-container {
-    margin-top: 15px;
-}
-
-.log-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 15px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
-    transition: 0.3s;
-    border-left: 3px solid #1cc88a;
-}
-
-.log-item:hover {
-    background: rgba(255,255,255,0.08);
-    transform: translateX(4px);
-}
-
-.log-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    background: rgba(28, 200, 138, 0.15);
-    color: #1cc88a;
-}
-
-.log-content {
-    flex: 1;
-}
-
-.log-message {
-    font-weight: 500;
-    color: #e4e6eb;
-}
-
-.log-time {
-    font-size: 12px;
-    color: rgba(255,255,255,0.6);
-    margin-top: 2px;
-}
+.input-dark { width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:white; }
+.input-dark:focus { outline:none; border-color:#1cc88a; background:rgba(255,255,255,0.08); }
 </style>
 
-<!-- Sidebar -->
 <div class="sidebar">
-    <div class="logo">
-        <img src="{{ url_for('static', filename='secure.png') }}">
-    </div>
-
+    <div class="logo"><img src="{{ url_for('static', filename='secure.png') }}"></div>
     <a onclick="showSection('dashboard')">Dashboard</a>
-    <a onclick="showSection('users')">User Management</a>
-    <a onclick="showSection('logs')">System Logs</a>
+    <a href="{{ url_for('edit_users') }}">User Management</a>
+    <a href="{{ url_for('admin_invite') }}">Send Invite</a>
+    <a href="{{ url_for('view_logs') }}">System Logs</a>
     <a onclick="showSection('profile')">Edit Profile</a>
+    <a href="{{ url_for('two_fa_setup') }}">Setup 2FA</a>
     <a href="{{ url_for('Logout') }}">Logout</a>
 </div>
 
-<!-- Main -->
 <div class="main">
+    <div class="topbar"><h5 id="page-title">Welcome, {{ current_user.username }}</h5><span>Admin Panel</span></div>
 
-    <div class="topbar">
-        <h5 id="page-title">Welcome, {{ current_user.username }}</h5>
-        <span>Admin Panel</span>
-    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="toast-container">{% for category, message in messages %}<div class="toast show text-bg-{{ 'success' if category=='success' else 'danger' }} mb-2"><div class="d-flex"><div class="toast-body">{{ message }}</div><button class="btn-close btn-close-white m-auto me-2" onclick="this.parentElement.parentElement.remove()"></button></div></div>{% endfor %}</div>{% endif %}{% endwith %}
 
     <!-- DASHBOARD -->
     <div id="dashboard-section">
-
         <div class="row g-4">
-
-            <div class="col-md-4">
-                <div class="card-box">
-                    <h5>User Management</h5>
-                    <p>View and edit user details.</p>
-                    <button class="btn btn-primary" onclick="showSection('users')">Manage</button>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card-box">
-                    <h5>System Logs</h5>
-                    <p>Monitor system activity.</p>
-                    <button class="btn btn-primary" onclick="showSection('logs')">View</button>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card-box">
-                    <h5>Edit Profile</h5>
-                    <p>Update your account details.</p>
-                    <button class="btn btn-primary" onclick="showSection('profile')">Edit</button>
-                </div>
-            </div>
-
+            <div class="col-md-4"><a href="{{ url_for('edit_users') }}" style="text-decoration:none;color:inherit;"><div class="card-box"><h5>User Management</h5><p>View, edit roles, and delete users.</p><span class="btn btn-primary btn-action">Manage</span></div></a></div>
+            <div class="col-md-4"><a href="{{ url_for('admin_invite') }}" style="text-decoration:none;color:inherit;"><div class="card-box"><h5>Send Invitations</h5><p>Invite new users via secure email link.</p><span class="btn btn-primary btn-action">Invite</span></div></a></div>
+            <div class="col-md-4"><a href="{{ url_for('view_logs') }}" style="text-decoration:none;color:inherit;"><div class="card-box"><h5>System Logs</h5><p>Monitor login attempts &amp; security alerts.</p><span class="btn btn-primary btn-action">View</span></div></a></div>
         </div>
 
-    </div>
-
-    <!-- USER MANAGEMENT -->
-    <div id="users-section" style="display:none;">
-        <div class="table-box">
-            <h5>Users</h5>
-
-            {% set users = [
-                {'name':'Alice Johnson','email':'alice@email.com','role':'Admin'},
-                {'name':'Michael Smith','email':'mike@email.com','role':'Manager'},
-                {'name':'Sarah Williams','email':'sarah@email.com','role':'Employee'},
-                {'name':'David Brown','email':'david@email.com','role':'Employee'},
-                {'name':'Emily Davis','email':'emily@email.com','role':'HR'},
-                {'name':'James Wilson','email':'james@email.com','role':'Security'}
-            ] %}
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for u in users %}
-                    <tr>
-                        <td>{{ u.name }}</td>
-                        <td>{{ u.email }}</td>
-                        <td>{{ u.role }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- SYSTEM LOGS -->
-    <div id="logs-section" style="display:none;">
-        <div class="card-box">
-            <h5>System Logs</h5>
-
-            <div class="logs-container">
-
-                {% set logs = [
-                    {'msg':'User Alice logged in','time':'10:15 AM'},
-                    {'msg':'Manager created a shift','time':'10:45 AM'},
-                    {'msg':'System updated successfully','time':'11:10 AM'},
-                    {'msg':'User Michael changed password','time':'11:30 AM'},
-                    {'msg':'New employee added','time':'12:05 PM'}
-                ] %}
-
-                {% for log in logs %}
-                <div class="log-item">
-                    <div class="log-icon">●</div>
-
-                    <div class="log-content">
-                        <div class="log-message">{{ log.msg }}</div>
-                        <div class="log-time">{{ log.time }}</div>
+        {% if logs %}
+        <h6 class="mt-4 mb-3" style="opacity:0.6;">Recent Login Activity</h6>
+        <div class="card-box" style="padding:15px;">
+            {% for log in logs[:8] %}
+            <div class="log-item {% if log.sql_flagged %}sql-alert{% elif not log.success %}failed{% endif %}">
+                <div style="flex:1;">
+                    <div style="font-weight:500;">{{ log.username }}
+                        {% if log.success %}<span class="badge bg-success ms-2">Success</span>{% else %}<span class="badge bg-danger ms-2">Failed</span>{% endif %}
+                        {% if log.sql_flagged %}<span class="badge bg-warning text-dark ms-1">SQL Alert</span>{% endif %}
                     </div>
+                    <div style="font-size:12px;opacity:0.6;margin-top:2px;">{{ log.timestamp.strftime('%Y-%m-%d %H:%M') }} UTC · {{ log.ip_address }}</div>
                 </div>
-                {% endfor %}
-
             </div>
+            {% endfor %}
         </div>
+        {% endif %}
     </div>
 
     <!-- EDIT PROFILE -->
     <div id="profile-section" style="display:none;">
-        <div class="card-box">
-            <h5>Edit Profile</h5>
-
-            <form>
-                <label>Username</label><br>
-                <input type="text" value="{{ current_user.username }}" style="width:100%; padding:8px; margin-bottom:10px;">
-
-                <label>Email</label><br>
-                <input type="email" value="{{ current_user.email }}" style="width:100%; padding:8px; margin-bottom:10px;">
-
+        <div class="card-box"><h5>Edit Profile</h5>
+            <form method="POST" action="{{ url_for('update_profile') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <label style="color:rgba(255,255,255,0.7);font-size:13px;">Username</label><br>
+                <input name="username" class="input-dark" value="{{ current_user.username }}" style="margin-bottom:10px;"><br>
+                <label style="color:rgba(255,255,255,0.7);font-size:13px;">Email</label><br>
+                <input name="email" type="email" class="input-dark" value="{{ current_user.email }}" style="margin-bottom:10px;"><br>
+                <label style="color:rgba(255,255,255,0.7);font-size:13px;">New Password (leave blank to keep current)</label><br>
+                <input name="password" type="password" class="input-dark" placeholder="New password" style="margin-bottom:15px;"><br>
                 <button class="btn btn-primary">Save Changes</button>
             </form>
         </div>
     </div>
-
 </div>
 
-<!-- JS -->
 <script>
-function showSection(section) {
-    document.getElementById('dashboard-section').style.display = 'none';
-    document.getElementById('users-section').style.display = 'none';
-    document.getElementById('logs-section').style.display = 'none';
-    document.getElementById('profile-section').style.display = 'none';
-
-    if (section === 'dashboard') {
-        document.getElementById('dashboard-section').style.display = 'block';
-        document.getElementById('page-title').innerText = "Welcome, {{ current_user.username }}";
-    }
-
-    if (section === 'users') {
-        document.getElementById('users-section').style.display = 'block';
-        document.getElementById('page-title').innerText = "User Management";
-    }
-
-    if (section === 'logs') {
-        document.getElementById('logs-section').style.display = 'block';
-        document.getElementById('page-title').innerText = "System Logs";
-    }
-
-    if (section === 'profile') {
-        document.getElementById('profile-section').style.display = 'block';
-        document.getElementById('page-title').innerText = "Edit Profile";
-    }
-}
-
-window.onload = function() {
-    showSection('dashboard');
-};
+function showSection(s){['dashboard','profile'].forEach(x=>document.getElementById(x+'-section').style.display='none');document.getElementById(s+'-section').style.display='block';document.getElementById('page-title').innerText=s==='dashboard'?"Welcome, {{ current_user.username }}":"Edit Profile";}
+window.onload=()=>showSection('dashboard');
+setTimeout(()=>document.querySelectorAll('.toast').forEach(t=>t.remove()),3000);
 </script>
-
 {% endblock %}

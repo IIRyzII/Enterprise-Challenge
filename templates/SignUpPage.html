@@ -7,7 +7,7 @@
 
 <style>
 body {
-  background: linear-gradient(135deg, #0a1f33, #104d71);
+  background: linear-gradient(135deg, #fdfdfd, #104d71);
   height:100vh;
   display:flex;
   align-items:center;
@@ -18,7 +18,7 @@ body {
 
 <body>
 <div class="position-absolute" style="top: 0px; left: 15px;">
-    <img src="static/secure.png" alt="Logo" width="180" height="180">
+    <img src="static/secure.png" alt="Logo" width="240" height="240">
 </div>
 <div class="card p-4" style="width:400px;">
 <h3 class="text-center mb-3">Sign Up</h3>
@@ -32,6 +32,7 @@ body {
 {% endwith %}
 
 <form method="POST">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 <input name="username" class="form-control mb-3" placeholder="Username" required>
 <input name="email" class="form-control mb-3" placeholder="Email" required>
 <input name="password" type="password" class="form-control mb-3" placeholder="Password" required>

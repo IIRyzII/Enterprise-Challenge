@@ -16,7 +16,7 @@ from flask_login import (LoginManager,UserMixin,login_user,logout_user,current_u
 from flask_mail import Mail, Message
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask_wtf.crsf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect
 import bcrypt
 
 # This section is the prerequisite for the app ---------------------------------
@@ -40,7 +40,7 @@ app.config["MAIL_DEFAULT_SENDER"] = (os.environ.get("MAIL_DEFAULT_SENDER","Secur
 
 INVITE_EXPIRY_HOURS = int(os.environ.get("INVITE_EXPIRY_HOURS",24))
 
-app.config[PERMANENT_SESSION_LIFETIME] = timedelta(minutes=15)
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=15)
 
 db = SQLAlchemy(app)
 mail = Mail(app)
@@ -58,7 +58,7 @@ limiter = Limiter(
 
 #logging security
 logging.basicConfig(level = logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-security_logger = logging.getLogger("security")
+security_log = logging.getLogger("security")
 # End of Prerequisite Section ---------------------------------------------
 
 #This section is for the SQL injection detection
@@ -118,6 +118,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), nullable=False, default="employee")
     topt_secret = db.Column(db.String(16), nullable=True)
+    availability = db.Column(db.String(255), nullable=True)
 
     def set_password(self,plaintext):
         #This both hashes and salts the password before storing it in the database
@@ -132,9 +133,32 @@ class User(UserMixin, db.Model):
     def two_fa_enabled(self):
         return self.topt_secret is not None
     
-    def verify_totp_secret(self):
-        return self.topt_secret is not None
+    def verify_totp(self,code):
+        try:
+            return pyotp.TOTP(self.topt_secret).verify(code, valid_window=1)
+        except Exception:
+            return False
     
+
+class Shift(db.Model):
+    """
+    This model stores shift availability for employees. Each entry is tied to a user and includes a date and time range.
+    Employees can update their availability, and managers can view it when scheduling shifts.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    day = db.Column(db.String(10), nullable=False)
+    start_time = db.Column(db.String(20), nullable=False)
+    end_time = db.Column(db.String(20), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    created_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+
+    employee = db.relationship("User", foreign_keys=[employee_id])
+    creator = db.relationship("User", foreign_keys=[created_by])
+
+
+                        
+
 class Invitation(db.Model):
     """
     This model stores invite tokens sent by admins. Each token is single-use, time-limited,
@@ -146,11 +170,11 @@ class Invitation(db.Model):
     email      = db.Column(db.String(120), nullable=False)
     role       = db.Column(db.String(20),  nullable=False, default="employee")
     created_by = db.Column(db.Integer,    db.ForeignKey("user.id"), nullable=False)
-    created_at = db.Column(db.DateTime,   nullable=False,
-                           default=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime,   nullable=False,default=lambda: datetime.now(timezone.utc))
     expires_at = db.Column(db.DateTime,   nullable=False)
     used       = db.Column(db.Boolean,    nullable=False, default=False)
     creator    = db.relationship("User",  foreign_keys=[created_by])
+    role_desc   = db.Column(db.String(255), nullable=True)
 
     @property
     def is_valid(self):
@@ -373,6 +397,107 @@ def two_fa_setup():
     return render_template("two_fa_setup.html",
                            qr_uri=make_qr_data_uri(uri), secret=secret)
 #This is the end of the 2FA setup route ---------------------------------
+
+#This route allows logged in users to update their shift availability. Employees can set their available days and times, which managers can view when scheduling shifts.
+@app.route("/update_availability", methods=["POST"])
+@login_required
+def update_availability():
+    days = sanitise(request.form.get("days", ""))
+    hours = sanitise(request.form.get("hours", ""))
+    current_user.availability = f"{days} {hours}" if days and hours else None
+    db.session.commit()
+    flash("Availability updated.", "success")
+    return redirect(url_for("employee_dashboard"))
+#This is the end of the update availability route ---------------------------------
+
+#This route allows managers to assing a new shift to employees.
+@app.route("/manager/add-shift", methods=["POST"])
+@login_required
+def add_shift():
+    if current_user.role not in ("manager", "admin"):
+        abort(403)
+
+    employee_id = request.form.get("employee_id", "")
+    day = sanitise(request.form.get("day", ""))
+    start_time = sanitise(request.form.get("start_time", ""))
+    end_time = sanitise(request.form.get("end_time", ""))
+    role_desc = sanitise(request.form.get("role_desc", "General Shift"))
+
+    if not employee_id.isdigit() or not day or not start_time or not end_time:
+        flash("Please fill out all fields correctly.", "danger")
+        return redirect(url_for("manager_dashboard"))
+    
+    employee = db.session.get(User, int(employee_id))
+    if not employee or employee.role != "employee":
+        flash("Selected user is not a valid employee.", "danger")
+        return redirect(url_for("manager_dashboard"))
+    
+    shift = Shift(
+        employee_id=employee.id, day=day, start_time=start_time, end_time=end_time,role_desc=role_desc, created_by=current_user.id
+    )
+    db.session.add(shift)
+    db.session.commit()
+    flash(f"Shift for {employee.username} on {day} added.", "success")
+    return redirect(url_for("manager_dashboard"))
+#This is the end of the add shift route ---------------------------------
+
+#This route allows managers to delete a shift from the schedule.
+@app.route("/manager/delete-shift/<int:shift_id>", methods=["POST"])
+@login_required
+def delete_shift(shift_id):
+    if current_user.role not in ("manager", "admin"):
+        abort(403)
+
+    shift = db.session.get(Shift, shift_id)
+    if shift:
+        db.session.delete(shift)
+        db.session.commit()
+        flash("Shift deleted.", "success")
+    else:
+        flash("Shift not found.", "danger")
+    return redirect(url_for("manager_dashboard"))
+#This is the end of the delete shift route ---------------------------------
+
+#This route allows employees to update their profile information such as their email address. It validates the input and checks for SQL injection patterns.
+@app.route("/update_profile", methods=["POST"])
+@login_required
+def update_profile():
+    new_username = clean_username(request.form.get("username", ""))
+    new_email = sanitise(request.form.get("email", ""))
+    new_password = request.form.get("password", "")
+
+    if new_username and new_username != current_user.username:
+        err = validate_username(new_username)
+        if err:
+            flash("Not a valid username", "danger")
+            return redirect(url_for("Dashboard"))
+        if User.query.filter(User.username.ilike(new_username)).first():
+            flash("Username already taken.", "danger")
+            return redirect(url_for("Dashboard"))
+        current_user.username = new_username
+
+    if new_email and new_email != current_user.email:
+        err = validate_email(new_email)
+        if err:
+            flash("Not a valid email", "danger")
+            return redirect(url_for("Dashboard"))
+        if User.query.filter_by(email=new_email).first():
+            flash("Email already in use.", "danger")
+            return redirect(url_for("Dashboard"))
+        current_user.email = new_email
+
+
+
+    if new_password:
+        err = validate_password(new_password)
+        if err:
+            flash("Not a valid password", "danger")
+            return redirect(url_for("Dashboard"))
+        current_user.set_password(new_password)
+
+    db.session.commit()
+    flash("Profile updated.", "success")
+    return redirect(url_for("Dashboard"))        
 
 
 #This route handles invite-only registration. Users can only register if they have a valid

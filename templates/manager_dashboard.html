@@ -1,296 +1,142 @@
 {% extends "base.html" %}
-
 {% block title %}Manager Dashboard{% endblock %}
-
 {% block content %}
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
 <style>
-body {
-    background: linear-gradient(135deg, #0a1f33, #104d71);
-    font-family: 'Inter', sans-serif;
-    color: #e4e6eb;
-}
-
-/* Sidebar */
-.sidebar {
-    width: 240px;
-    height: 100vh;
-    position: fixed;
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(10px);
-    padding: 25px 0;
-}
-
-.sidebar .logo {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.sidebar .logo img {
-    width: 90px;
-}
-
-.sidebar a {
-    display: block;
-    padding: 12px 25px;
-    color: #cfd8dc;
-    text-decoration: none;
-    font-weight: 500;
-    transition: 0.3s;
-    cursor: pointer;
-}
-
-.sidebar a:hover {
-    background: rgba(255,255,255,0.08);
-    color: #ffffff;
-}
-
-/* Main */
-.main {
-    margin-left: 240px;
-    padding: 30px;
-}
-
-/* Topbar */
-.topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(0,0,0,0.35);
-    padding: 15px 20px;
-    border-radius: 12px;
-    margin-bottom: 30px;
-}
-
-/* Cards */
-.card-box {
-    background: rgba(255,255,255,0.06);
-    border-radius: 16px;
-    padding: 30px;
-    transition: 0.3s;
-    border: 1px solid rgba(255,255,255,0.08);
-}
-
-.card-box:hover {
-    transform: translateY(-5px);
-    background: rgba(255,255,255,0.08);
-}
-
-/* Table */
-.table-box {
-    background: rgba(255,255,255,0.06);
-    border-radius: 16px;
-    padding: 20px;
-    border: 1px solid rgba(255,255,255,0.08);
-}
-
-table {
-    width: 100%;
-    color: white;
-}
-
-th, td {
-    padding: 12px;
-}
-
-td {
-    border-top: 1px solid rgba(255,255,255,0.08);
-}
-
-/* Buttons */
-.btn-action {
-    margin-top: 10px;
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-size: 0.85rem;
-}
-
-.btn-primary {
-    background: #1cc88a;
-    border: none;
-}
-
-.btn-primary:hover {
-    background: #17a673;
-}
-
-.btn-outline-light {
-    border-color: rgba(255,255,255,0.3);
-    color: white;
-}
-
-.btn-outline-light:hover {
-    background: rgba(255,255,255,0.1);
-}
+.input-dark { width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:white; }
+.input-dark:focus { outline:none; border-color:#1cc88a; background:rgba(255,255,255,0.08); }
 </style>
 
-<!-- Sidebar -->
 <div class="sidebar">
-
-    <div class="logo">
-        <img src="{{ url_for('static', filename='secure.png') }}">
-    </div>
-
+    <div class="logo"><img src="{{ url_for('static', filename='secure.png') }}"></div>
     <a onclick="showSection('dashboard')">Dashboard</a>
+    <a onclick="showSection('add-shift')">Add Shift</a>
+    <a onclick="showSection('manage-shifts')">Manage Shifts</a>
     <a onclick="showSection('employees')">Employees</a>
-    <a href="#">Shifts</a>
-    <a href="#">Reports</a>
-    <a href="#">Edit Profile</a>
+    <a onclick="showSection('profile')">Edit Profile</a>
+    <a href="{{ url_for('two_fa_setup') }}">Setup 2FA</a>
     <a href="{{ url_for('Logout') }}">Logout</a>
-
 </div>
 
-<!-- Main -->
 <div class="main">
+    <div class="topbar"><h5 style="margin:0;" id="page-title">Welcome, {{ current_user.username }}</h5><span style="opacity:0.7;">Manager Panel</span></div>
 
-    <div class="topbar">
-        <h5 style="margin:0;" id="page-title">Welcome, {{ current_user.username }}</h5>
-        <span style="opacity:0.7;">Manager Panel</span>
-    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="toast-container">{% for category, message in messages %}<div class="toast show text-bg-{{ 'success' if category=='success' else ('warning' if category=='warning' else 'danger') }} mb-2"><div class="d-flex"><div class="toast-body">{{ message }}</div><button class="btn-close btn-close-white m-auto me-2" onclick="this.parentElement.parentElement.remove()"></button></div></div>{% endfor %}</div>{% endif %}{% endwith %}
 
     <!-- DASHBOARD -->
     <div id="dashboard-section">
-
         <div class="row g-4">
-
-            <div class="col-md-4">
-                <div class="card-box">
-                    <h5>Add Shift</h5>
-                    <p>Create and assign new shifts to employees.</p>
-                    <button class="btn btn-primary btn-action">Add</button>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card-box">
-                    <h5>Remove Shift</h5>
-                    <p>Delete or modify existing shift schedules.</p>
-                    <button class="btn btn-outline-light btn-action">Manage</button>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card-box">
-                    <h5>Employees</h5>
-                    <p>View and manage employee details.</p>
-                    <button class="btn btn-outline-light btn-action"
-                            onclick="showSection('employees')">
-                        View
-                    </button>
-                </div>
-            </div>
-
+            <div class="col-md-4"><div class="card-box"><h5>Add Shift</h5><p>Create and assign new shifts to employees.</p><button class="btn btn-primary btn-action" onclick="showSection('add-shift')">Add</button></div></div>
+            <div class="col-md-4"><div class="card-box"><h5>Manage Shifts</h5><p>View and remove existing shift schedules.</p><button class="btn btn-outline-light btn-action" onclick="showSection('manage-shifts')">Manage</button></div></div>
+            <div class="col-md-4"><div class="card-box"><h5>Employees</h5><p>View employee details and availability.</p><button class="btn btn-outline-light btn-action" onclick="showSection('employees')">View</button></div></div>
         </div>
-
     </div>
 
-    <!-- EMPLOYEES LIST -->
-    <div id="employees-section" style="display:none;">
+    <!-- ADD SHIFT (posts to real route) -->
+    <div id="add-shift-section" style="display:none;">
+        <div class="card-box">
+            <h5>Add New Shift</h5>
+            <form method="POST" action="{{ url_for('add_shift') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div style="margin-bottom:12px;">
+                    <label style="font-size:13px;color:rgba(255,255,255,0.7);display:block;margin-bottom:5px;">Employee</label>
+                    <select name="employee_id" class="form-select-dark" required>
+                        <option value="" disabled selected>Select employee</option>
+                        {% for emp in all_users %}
+                        <option value="{{ emp.id }}">{{ emp.username }} ({{ emp.role }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label style="font-size:13px;color:rgba(255,255,255,0.7);display:block;margin-bottom:5px;">Day</label>
+                    <select name="day" class="form-select-dark" required>
+                        <option value="Monday">Monday</option><option value="Tuesday">Tuesday</option><option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option><option value="Friday">Friday</option><option value="Saturday">Saturday</option><option value="Sunday">Sunday</option>
+                    </select>
+                </div>
+                <div class="row g-3" style="margin-bottom:12px;">
+                    <div class="col-6"><label style="font-size:13px;color:rgba(255,255,255,0.7);display:block;margin-bottom:5px;">Start Time</label><input name="start_time" class="input-dark" type="time" required></div>
+                    <div class="col-6"><label style="font-size:13px;color:rgba(255,255,255,0.7);display:block;margin-bottom:5px;">End Time</label><input name="end_time" class="input-dark" type="time" required></div>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label style="font-size:13px;color:rgba(255,255,255,0.7);display:block;margin-bottom:5px;">Role / Task</label>
+                    <input name="role_desc" class="input-dark" placeholder="e.g. Cashier, Stock, Support" value="General">
+                </div>
+                <button class="btn btn-primary">Add Shift</button>
+            </form>
+        </div>
+    </div>
 
+    <!-- MANAGE SHIFTS (real data, with delete) -->
+    <div id="manage-shifts-section" style="display:none;">
         <div class="table-box">
-            <h5>Employees</h5>
-
+            <h5 style="margin-bottom:15px;">All Shifts</h5>
             <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th></th>
-                    </tr>
-                </thead>
-
+                <thead><tr><th>Employee</th><th>Day</th><th>Time</th><th>Role</th><th></th></tr></thead>
                 <tbody>
-
-    {% set demo_employees = [
-        {'username': 'Alice Johnson', 'email': 'alice.johnson@email.com', 'role': 'Cashier'},
-        {'username': 'Michael Smith', 'email': 'm.smith@email.com', 'role': 'Supervisor'},
-        {'username': 'Sarah Williams', 'email': 'sarah.w@email.com', 'role': 'Assistant Manager'},
-        {'username': 'David Brown', 'email': 'david.b@email.com', 'role': 'Stock Assistant'},
-        {'username': 'Emily Davis', 'email': 'emily.d@email.com', 'role': 'HR'},
-        {'username': 'James Wilson', 'email': 'j.wilson@email.com', 'role': 'Security Officer'},
-        {'username': 'Olivia Taylor', 'email': 'olivia.t@email.com', 'role': 'Cleaner'},
-        {'username': 'Daniel Anderson', 'email': 'dan.anderson@email.com', 'role': 'Technician'}
-    ] %}
-
-    {% for emp in demo_employees %}
-    <tr>
-        <td>{{ emp.username }}</td>
-        <td>{{ emp.email }}</td>
-        <td>{{ emp.role }}</td>
-        <td>
-            <button class="btn btn-outline-light btn-action"
-                    data-name="{{ emp.username }}"
-                    data-email="{{ emp.email }}"
-                    data-role="{{ emp.role }}"
-                    onclick="showEmployee(this)">
-                View
-            </button>
-        </td>
-    </tr>
-    {% endfor %}
-
-</tbody>
+                {% for shift in shifts %}
+                <tr>
+                    <td>{{ shift.employee.username }}</td>
+                    <td>{{ shift.day }}</td>
+                    <td>{{ shift.start_time }} - {{ shift.end_time }}</td>
+                    <td><span style="background:rgba(28,200,138,0.15);color:#1cc88a;padding:4px 10px;border-radius:6px;font-size:13px;">{{ shift.role_desc }}</span></td>
+                    <td>
+                        <form method="POST" action="{{ url_for('delete_shift', shift_id=shift.id) }}" onsubmit="return confirm('Remove this shift?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button class="btn btn-sm btn-danger">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" style="text-align:center;opacity:0.5;padding:30px;">No shifts created yet.</td></tr>
+                {% endfor %}
+                </tbody>
             </table>
         </div>
-
     </div>
 
-    <!-- EMPLOYEE DETAIL -->
-    <div id="employee-detail-section" style="display:none;">
-
-        <div class="card-box">
-            <h4 id="emp-name"></h4>
-            <p><strong>Email:</strong> <span id="emp-email"></span></p>
-            <p><strong>Role:</strong> <span id="emp-role"></span></p>
-
-            <button class="btn btn-outline-light btn-action"
-                    onclick="showSection('employees')">
-                Back
-            </button>
+    <!-- EMPLOYEES (real data from database) -->
+    <div id="employees-section" style="display:none;">
+        <div class="table-box">
+            <h5 style="margin-bottom:15px;">Employees</h5>
+            <table>
+                <thead><tr><th>Username</th><th>Email</th><th>Role</th><th>Availability</th></tr></thead>
+                <tbody>
+                {% for emp in employees %}
+                <tr>
+                    <td><strong>{{ emp.username }}</strong></td>
+                    <td>{{ emp.email }}</td>
+                    <td><span class="badge bg-secondary">{{ emp.role }}</span></td>
+                    <td>{{ emp.availability or '—' }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" style="text-align:center;opacity:0.5;padding:30px;">No employees registered yet.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
-
     </div>
 
+    <!-- EDIT PROFILE (posts to real route) -->
+    <div id="profile-section" style="display:none;">
+        <div class="card-box"><h5>Edit Profile</h5>
+            <form method="POST" action="{{ url_for('update_profile') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <label style="color:rgba(255,255,255,0.7);font-size:13px;">Username</label><br>
+                <input name="username" class="input-dark" value="{{ current_user.username }}" style="margin-bottom:10px;"><br>
+                <label style="color:rgba(255,255,255,0.7);font-size:13px;">Email</label><br>
+                <input name="email" type="email" class="input-dark" value="{{ current_user.email }}" style="margin-bottom:10px;"><br>
+                <label style="color:rgba(255,255,255,0.7);font-size:13px;">New Password (leave blank to keep current)</label><br>
+                <input name="password" type="password" class="input-dark" placeholder="New password" style="margin-bottom:15px;"><br>
+                <button class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
 </div>
 
-<!-- JS -->
 <script>
-function showSection(section) {
-    document.getElementById('dashboard-section').style.display = 'none';
-    document.getElementById('employees-section').style.display = 'none';
-    document.getElementById('employee-detail-section').style.display = 'none';
-
-    if (section === 'dashboard') {
-        document.getElementById('dashboard-section').style.display = 'block';
-        document.getElementById('page-title').innerText = "Welcome, {{ current_user.username }}";
-    }
-
-    if (section === 'employees') {
-        document.getElementById('employees-section').style.display = 'block';
-        document.getElementById('page-title').innerText = "Employees";
-    }
-
-    if (section === 'employee-detail') {
-        document.getElementById('employee-detail-section').style.display = 'block';
-        document.getElementById('page-title').innerText = "Employee Details";
-    }
-}
-
-function showEmployee(btn) {
-    document.getElementById('emp-name').innerText = btn.dataset.name;
-    document.getElementById('emp-email').innerText = btn.dataset.email;
-    document.getElementById('emp-role').innerText = btn.dataset.role;
-
-    showSection('employee-detail');
-}
-
-// default load
-window.onload = function() {
-    showSection('dashboard');
-};
+function showSection(s){['dashboard','add-shift','manage-shifts','employees','profile'].forEach(x=>document.getElementById(x+'-section').style.display='none');document.getElementById(s+'-section').style.display='block';document.getElementById('page-title').innerText={dashboard:"Welcome, {{ current_user.username }}","add-shift":"Add Shift","manage-shifts":"Manage Shifts",employees:"Employees",profile:"Edit Profile"}[s];}
+window.onload=()=>showSection('dashboard');
+setTimeout(()=>document.querySelectorAll('.toast').forEach(t=>t.remove()),3000);
 </script>
-
 {% endblock %}

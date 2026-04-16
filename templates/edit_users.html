@@ -55,7 +55,7 @@
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <input type="hidden" name="user_id" value="{{ user.id }}">
                         <input type="hidden" name="action" value="update_role">
-                        <select name="role" class="form-select-dark" style="width:100px;padding:4px 8px;font-size:.85rem;">
+                        <select name="role" class="form-select-dark" style="width:100px;padding:4px 8px;font-size:.85rem;colour:#e4e6eb">
                             <option value="employee" {% if user.role=='employee' %}selected{% endif %}>employee</option>
                             <option value="manager" {% if user.role=='manager' %}selected{% endif %}>manager</option>
                             <option value="admin" {% if user.role=='admin' %}selected{% endif %}>admin</option>

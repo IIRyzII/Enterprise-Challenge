@@ -31,7 +31,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = _db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 #This configures the Flask-Mail extension to use Gmail's SMTP server. The email and password for the Gmail account are stored in environment variables for security.
-app.config["MAIL_SERVER"] = os.environ.get('MAIL_SERVER','smtp.gmail.com')"
+app.config["MAIL_SERVER"] = os.environ.get('MAIL_SERVER','smtp.gmail.com')
 app.config["MAIL_PORT"] = int(os.environ.get("MAIL_PORT",587))
 app.config["MAIL_USE_TLS"] = os.environ.get("MAIL_USE_TLS","True").lower() == "true"
 app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME","")

@@ -25,7 +25,7 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY","change")
 
 #Database connection with render
 _db_url = os.environ.get("DATABASE_URL","sqlite:///secure_future.db")
-if _db_url.startswith("postgres://"):
+if _db_url.startswith("postgres://","postgresql://"):
     _db_url = _db_url.replace("postgres://","postgresql://",1)
 app.config["SQLALCHEMY_DATABASE_URI"] = _db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
